@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: 'maven'
+      - name: Build and test
+        run: mvn -B -q test
+      - name: SonarCloud Scan
+        if: ${{ vars.SONAR_ENABLED == 'true' && secrets.SONAR_TOKEN != '' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B -q verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -DskipTests=false -Dsonar.projectKey=onlinebank -Dsonar.organization=example-org -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${SONAR_TOKEN}
