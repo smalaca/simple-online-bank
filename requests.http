@@ -1,0 +1,106 @@
+# IntelliJ HTTP Client collection for Online Bank Application
+# Base URL and authentication
+@baseUrl = http://localhost:8080
+@authBasic = Basic dXNlcjpwYXNzd29yZA==  # user:password
+
+### Public health endpoint (no auth)
+# @name health
+GET {{baseUrl}}/health
+
+### Public offers endpoint (no auth)
+# @name offers_accounts
+GET {{baseUrl}}/offers/accounts
+
+### Create a new customer (secured)
+# @name create_customer
+POST {{baseUrl}}/api/customers
+Authorization: {{authBasic}}
+Content-Type: application/json
+
+{
+  "customerNumber": "C011",
+  "name": "Alice"
+}
+
+### List all customers (secured)
+# @name list_customers
+GET {{baseUrl}}/api/customers
+Authorization: {{authBasic}}
+
+### Get customer by number (secured)
+# @name get_customer
+GET {{baseUrl}}/api/customers/C001
+Authorization: {{authBasic}}
+
+### Create source account for customer C001 in USD (secured)
+# @name create_account_src
+POST {{baseUrl}}/api/accounts
+Authorization: {{authBasic}}
+Content-Type: application/json
+
+{
+  "customerNumber": "C001",
+  "currency": "USD"
+}
+
+> {% client.global.set("accSrc", response.body.accountNumber); %}
+
+### Create target account for customer C001 in EUR (secured)
+# @name create_account_tgt
+POST {{baseUrl}}/api/accounts
+Authorization: {{authBasic}}
+Content-Type: application/json
+
+{
+  "customerNumber": "C001",
+  "currency": "EUR"
+}
+
+> {% client.global.set("accTgt", response.body.accountNumber); %}
+
+### List accounts for customer C001 (secured)
+# @name list_accounts_by_customer
+GET {{baseUrl}}/api/accounts/customer/C001
+Authorization: {{authBasic}}
+
+### Get account details by account number (secured)
+# @name get_account_src
+GET {{baseUrl}}/api/accounts/{{accSrc}}
+Authorization: {{authBasic}}
+
+### Deposit into source account (secured)
+# @name deposit_src
+POST {{baseUrl}}/api/accounts/{{accSrc}}/deposit
+Authorization: {{authBasic}}
+Content-Type: application/json
+
+{
+  "amount": 2500.75
+}
+
+### Withdraw from source account (secured)
+# @name withdraw_src
+POST {{baseUrl}}/api/accounts/{{accSrc}}/withdraw
+Authorization: {{authBasic}}
+Content-Type: application/json
+
+{
+  "amount": 100.25
+}
+
+### Transfer from source to target account (secured)
+# @name transfer_src_to_tgt
+POST {{baseUrl}}/api/accounts/transfer
+Authorization: {{authBasic}}
+Content-Type: application/json
+
+{
+  "sourceAccount": "{{accSrc}}",
+  "targetAccount": "{{accTgt}}",
+  "amount": 50
+}
+
+### Get target account after transfer (secured)
+# @name get_account_tgt
+GET {{baseUrl}}/api/accounts/{{accTgt}}
+Authorization: {{authBasic}}
