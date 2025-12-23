@@ -61,6 +61,12 @@ public class DataInitializer {
             }
             idx++;
         }
+
+        // Add 5 customers with NO accounts: C011..C015
+        for (int i = 11; i <= 15; i++) {
+            String number = "C" + String.format("%03d", i);
+            customerService.addCustomer(number, "Customer " + i);
+        }
     }
 
     private static BigDecimal bd(int v) { return new BigDecimal(v).setScale(4); }
