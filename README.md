@@ -70,24 +70,13 @@ Business rules
   - Unique constraints on customerNumber and accountNumber.
 
 Initial demo data (local profile)
-- On local (non-docker) profile, the app seeds demo data:
-  - 10 customers: C001 .. C010
+- On the app seeds demo data:
+  - 15 customers: C001 .. C015
   - Accounts and starting balances (USD):
+    - 5 customers with no account
     - 5 customers with 1 account each: 1000, 2000, 6340, 12, 123
     - 2 customers with 2 accounts each: 10000, 20879, 892, 8231
     - 3 customers with 3 accounts each: 2134, 4325, 5432, 1234, 5678, 98760 (cycled as needed)
 
 Security
 - Spring Security is enabled but currently permits all requests (HTTP Basic enabled). Rules can be tightened later.
-
-Architecture
-- Hexagonal-style separation:
-  - Domain: entities and enums (Account, Customer, Transaction, Currency, TransactionType)
-  - Application services: AccountService, CustomerService, RatesEngine
-  - Adapters: REST controllers (AccountController, CustomerController), JPA repositories
-
-Development & CI
-- Testing: mvn test
-  - Unit: RatesEngineTest
-  - Integration: InitialDataIntegrationTest (checks seeded counts)
-- GitHub Actions CI: builds and runs tests on pushes/PRs. Optional SonarCloud scan if repository vars/secrets configured.
