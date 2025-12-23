@@ -19,7 +19,7 @@ Authorization: {{authBasic}}
 Content-Type: application/json
 
 {
-  "customerNumber": "C011",
+  "customerNumber": "C021",
   "name": "Alice"
 }
 
