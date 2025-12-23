@@ -12,14 +12,15 @@ How to run
 - Run with Docker + MySQL:
   - Build jar: mvn -q -DskipTests package
   - Start stack: docker compose up --build
-  - App: http://localhost:8080
+  - App (default): http://localhost:8081
+  - To use a different host port, set APP_PORT, e.g. PowerShell: `$env:APP_PORT=9090; docker compose up --build` (then open http://localhost:9090)
   - MySQL: localhost:3306 (user: bank, pw: bankpw)
 - Profiles:
   - Default (local): H2, seeds initial demo data
   - docker: MySQL, no seeding component
 
 REST Endpoints
-- Base URL: http://localhost:8080
+- Base URL: http://localhost:8081 (Docker default) or http://localhost:8080 (local run)
 
 Customers
 - POST /api/customers
