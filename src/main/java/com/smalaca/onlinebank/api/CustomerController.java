@@ -38,4 +38,9 @@ public class CustomerController {
         Customer c = customerService.getByNumber(number);
         return new CustomerResponse(c.getCustomerNumber(), c.getName());
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleServiceException(Exception ex) {
+        return ResponseEntity.ok(ex.getMessage());
+    }
 }

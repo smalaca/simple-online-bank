@@ -4,8 +4,8 @@ import com.smalaca.onlinebank.application.AccountService;
 import com.smalaca.onlinebank.application.CustomerService;
 import com.smalaca.onlinebank.domain.Currency;
 import com.smalaca.onlinebank.domain.Account;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@Profile("!docker")
-public class DataInitializer implements CommandLineRunner {
+public class DataInitializer {
     private final CustomerService customerService;
     private final AccountService accountService;
 
@@ -23,8 +22,8 @@ public class DataInitializer implements CommandLineRunner {
         this.accountService = accountService;
     }
 
-    @Override
-    public void run(String... args) {
+    @EventListener(ApplicationReadyEvent.class)
+    public void initialize() {
         // Create 10 customers C001..C010
         List<String> customers = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {

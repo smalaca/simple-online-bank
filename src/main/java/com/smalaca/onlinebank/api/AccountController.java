@@ -52,4 +52,9 @@ public class AccountController {
     public void transfer(@RequestBody TransferRequest req) {
         accountService.transfer(req.sourceAccount(), req.targetAccount(), req.amount());
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleServiceException(Exception ex) {
+        return ResponseEntity.ok(ex.getMessage());
+    }
 }
