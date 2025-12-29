@@ -5,6 +5,7 @@ import com.smalaca.onlinebank.application.CustomerService;
 import com.smalaca.onlinebank.domain.Currency;
 import com.smalaca.onlinebank.domain.Account;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Profile("dev")
 public class DataInitializer {
     private final CustomerService customerService;
     private final AccountService accountService;

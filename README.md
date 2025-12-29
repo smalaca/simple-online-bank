@@ -5,22 +5,52 @@ A minimal online banking REST API built with Spring Boot 3 following a hexagonal
 How to run
 - Prerequisites: Java 21, Maven 3.9+, Docker (for container run)
 - Run tests: mvn test
-- Run locally (H2 in-memory DB):
-  - mvn spring-boot:run
-  - App: http://localhost:8080
-  - H2 Console (optional): http://localhost:8080/h2-console (JDBC URL jdbc:h2:mem:onlinebank)
-- Run with Docker + MySQL:
-  - Build jar: mvn -q -DskipTests package
-  - Start stack: docker compose up --build
-  - App (default): http://localhost:8081
-  - To use a different host port, set APP_PORT, e.g. PowerShell: `$env:APP_PORT=9090; docker compose up --build` (then open http://localhost:9090)
-  - MySQL: localhost:3306 (user: bank, pw: bankpw)
-- Profiles:
-  - Default (local): H2, seeds initial demo data
-  - docker: MySQL, no seeding component
+
+Environments
+- DEV
+  - Profile: dev
+  - Port: 8080
+  - DB: H2 in-memory
+  - Security: no security at all (all endpoints are open)
+  - Data: demo data seeded on startup
+- UAT
+  - Profile: uat
+  - Port: 8081
+  - DB: MySQL (docker service uat-db)
+  - Security: HTTP Basic with a single user; username uat, password uatpw
+  - Data: no demo data
+- PROD
+  - Profile: prod
+  - Port: 8082
+  - DB: MySQL (docker service prod-db)
+  - Security: HTTP Basic with a single user; username prod, password prodpw
+  - Data: no demo data
+
+Security notes
+- In all environments, the endpoints /health and /offers/accounts are publicly accessible (no authentication required).
+- In UAT/PROD, all other endpoints require HTTP Basic auth (see credentials above).
+
+Run locally (DEV, H2)
+- mvn spring-boot:run -Dspring-boot.run.profiles=dev
+- App: http://localhost:8080
+- H2 Console (optional): http://localhost:8080/h2-console (JDBC URL jdbc:h2:mem:onlinebank)
+
+Run all environments with Docker
+- Build jar: mvn -q -DskipTests package
+- Start everything: docker compose up --build
+- Apps:
+  - DEV:  http://localhost:8080
+  - UAT:  http://localhost:8081 (auth: uat/uatpw)
+  - PROD: http://localhost:8082 (auth: prod/prodpw)
+- Databases:
+  - UAT MySQL:  localhost:3307 (user: bank, pw: bankpw)
+  - PROD MySQL: localhost:3308 (user: bank, pw: bankpw)
+
+Stopping containers
+- docker compose down
 
 REST Endpoints
-- Base URL: http://localhost:8081 (Docker default) or http://localhost:8080 (local run)
+- Base URL: depends on environment (see above)
 
 Customers
 - POST /api/customers

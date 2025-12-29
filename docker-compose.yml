@@ -1,6 +1,15 @@
 version: '3.9'
 services:
-  db:
+  # DEV environment - H2, no external DB, security disabled
+  app-dev:
+    build: .
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      - "8080:8080"
+
+  # UAT environment - with its own MySQL
+  uat-db:
     image: mysql:8.4
     environment:
       MYSQL_DATABASE: onlinebank
@@ -8,18 +17,45 @@ services:
       MYSQL_USER: bank
       MYSQL_PASSWORD: bankpw
     ports:
-      - "3306:3306"
+      - "3307:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 10
-  app:
+
+  app-uat:
     build: .
     depends_on:
-      db:
+      uat-db:
         condition: service_healthy
-    ports:
-      - "${APP_PORT:-8081}:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: uat
+    ports:
+      - "8081:8081"
+
+  # PROD environment - with its own MySQL
+  prod-db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: onlinebank
+      MYSQL_ROOT_PASSWORD: rootpw
+      MYSQL_USER: bank
+      MYSQL_PASSWORD: bankpw
+    ports:
+      - "3308:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app-prod:
+    build: .
+    depends_on:
+      prod-db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8082:8082"
