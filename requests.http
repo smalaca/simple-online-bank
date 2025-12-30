@@ -1,8 +1,13 @@
 # IntelliJ HTTP Client collection for Online Bank Application
 # Base URL and authentication
-# @authBasic = Basic dXNlcjpwYXNzd29yZA==  # user:password
+# DEV
+#@baseUrl = http://localhost:8080
+# UAT
 @baseUrl = http://localhost:8081
-@authBasic = Basic dXNlcjpwYXNzd29yZA==
+@authBasic = Basic dWF0OnVhdHB3
+# PROD
+#@baseUrl = http://localhost:8082
+#@authBasic = Basic cHJvZDpwcm9kcHc
 
 ### Public health endpoint (no auth)
 # @name health
