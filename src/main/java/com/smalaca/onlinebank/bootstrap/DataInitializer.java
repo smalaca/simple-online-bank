@@ -27,10 +27,20 @@ public class DataInitializer {
 
     @EventListener(ApplicationReadyEvent.class)
     public void initialize() {
+        String[] names = {"James", "Mary", "Robert", "Patricia", "John", "Jennifer", "Michael", "Linda", "William", "Elizabeth"};
+        String[] surnames = {"Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"};
+        String[] addresses = {
+                "123 Maple St, Springfield", "456 Oak Ave, Riverdale", "789 Pine Rd, Lakeside",
+                "321 Cedar Ln, Hillcrest", "654 Birch Dr, Parkview", "987 Elm Ct, Fairview",
+                "159 Willow Way, Woodside", "753 Aspen Blvd, Brookside", "852 Cherry Cir, Sunnyside",
+                "951 Poplar Pl, Morningside"
+        };
+
         // Create 10 customers
         List<String> customers = new ArrayList<>();
-        for (int i = 1; i <= 10; i++) {
-            Customer customer = customerService.addCustomer("Name" + i, "Surname" + i, "customer" + i + "@example.com", "+4812345678" + i, "Address " + i);
+        for (int i = 0; i < 10; i++) {
+            String email = names[i].toLowerCase() + "." + surnames[i].toLowerCase() + "@example.com";
+            Customer customer = customerService.addCustomer(names[i], surnames[i], email, "+4812345678" + i, addresses[i]);
             customers.add(customer.getCustomerNumber());
         }
 
@@ -64,9 +74,12 @@ public class DataInitializer {
             idx++;
         }
 
+        String[] extraNames = {"Thomas", "Barbara", "Christopher", "Susan", "Charles"};
+        String[] extraSurnames = {"Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson"};
+
         // Add 5 customers with NO accounts
-        for (int i = 11; i <= 15; i++) {
-            customerService.addCustomer("Name" + i, "Surname" + i, null, null, null);
+        for (int i = 0; i < 5; i++) {
+            customerService.addCustomer(extraNames[i], extraSurnames[i], null, null, null);
         }
     }
 
