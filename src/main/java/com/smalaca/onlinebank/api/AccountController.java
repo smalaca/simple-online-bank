@@ -80,8 +80,8 @@ public class AccountController {
         return ResponseEntity.ok(errors);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleServiceException(Exception ex) {
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<?> handleServiceException(IllegalStateException ex) {
         return ResponseEntity.ok(ex.getMessage());
     }
 }
