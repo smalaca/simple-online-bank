@@ -5,6 +5,7 @@ import com.smalaca.onlinebank.application.AccountService;
 import com.smalaca.onlinebank.domain.Account;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -71,11 +72,16 @@ public class AccountController {
         return ResponseEntity.notFound().build();
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<List<ValidationError>> handleValidationException(MethodArgumentNotValidException ex) {
+        List<ValidationError> errors = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> new ValidationError(error.getField(), error.getDefaultMessage()))
+                .toList();
+        return ResponseEntity.ok(errors);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleServiceException(Exception ex) {
-        if (ex instanceof org.springframework.web.bind.MethodArgumentNotValidException) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+    public ResponseEntity<?> handleServiceException(Exception ex) {
         return ResponseEntity.ok(ex.getMessage());
     }
 }

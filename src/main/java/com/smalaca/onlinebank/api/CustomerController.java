@@ -2,10 +2,12 @@ package com.smalaca.onlinebank.api;
 
 import com.smalaca.onlinebank.api.dto.CustomerDtos.*;
 import com.smalaca.onlinebank.api.dto.AccountDtos.AccountResponse;
+import com.smalaca.onlinebank.api.dto.AccountDtos.ValidationError;
 import com.smalaca.onlinebank.application.CustomerService;
 import com.smalaca.onlinebank.application.AccountService;
 import com.smalaca.onlinebank.domain.Customer;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -71,5 +73,13 @@ public class CustomerController {
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<Void> handleNotFound() {
         return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<List<ValidationError>> handleValidationException(MethodArgumentNotValidException ex) {
+        List<ValidationError> errors = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> new ValidationError(error.getField(), error.getDefaultMessage()))
+                .toList();
+        return ResponseEntity.ok(errors);
     }
 }

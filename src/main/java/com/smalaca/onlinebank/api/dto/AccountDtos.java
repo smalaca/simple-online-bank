@@ -11,4 +11,5 @@ public class AccountDtos {
     public record AmountRequest(@Positive BigDecimal amount) {}
     public record TransferRequest(String sourceAccount, String targetAccount, @Positive BigDecimal amount) {}
     public record AccountDeletionResponse(String status, String message) {}
+    public record ValidationError(String field, String message) {}
 }

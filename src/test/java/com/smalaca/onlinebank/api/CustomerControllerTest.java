@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static org.hamcrest.Matchers.hasItems;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -56,19 +57,22 @@ class CustomerControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenNameOrSurnameMissing() throws Exception {
+    void shouldReturn200AndValidationErrorsWhenNameOrSurnameMissing() throws Exception {
         mockMvc.perform(post("/api/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"john.doe@test.com\"}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].field").value(hasItems("name", "surname")));
     }
 
     @Test
-    void shouldReturn400WhenEmailIsInvalid() throws Exception {
+    void shouldReturn200AndValidationErrorsWhenEmailIsInvalid() throws Exception {
         mockMvc.perform(post("/api/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"John\", \"surname\": \"Doe\", \"email\": \"invalid-email\"}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].field").value("email"))
+                .andExpect(jsonPath("$[0].message").exists());
     }
 
     @Test

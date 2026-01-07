@@ -59,31 +59,39 @@ class AccountControllerTest {
     }
 
     @Test
-    void shouldReturn400WhenDepositAmountIsNonPositive() throws Exception {
+    void shouldReturn200AndValidationErrorsWhenDepositAmountIsNonPositive() throws Exception {
         mockMvc.perform(put("/api/accounts/123/deposit")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"amount\": -10}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].field").value("amount"))
+                .andExpect(jsonPath("$[0].message").exists());
 
         mockMvc.perform(put("/api/accounts/123/deposit")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"amount\": 0}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].field").value("amount"))
+                .andExpect(jsonPath("$[0].message").exists());
     }
 
     @Test
-    void shouldReturn400WhenWithdrawAmountIsNonPositive() throws Exception {
+    void shouldReturn200AndValidationErrorsWhenWithdrawAmountIsNonPositive() throws Exception {
         mockMvc.perform(put("/api/accounts/123/withdraw")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"amount\": -5}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].field").value("amount"))
+                .andExpect(jsonPath("$[0].message").exists());
     }
 
     @Test
-    void shouldReturn400WhenTransferAmountIsNonPositive() throws Exception {
+    void shouldReturn200AndValidationErrorsWhenTransferAmountIsNonPositive() throws Exception {
         mockMvc.perform(put("/api/accounts/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"sourceAccount\": \"123\", \"targetAccount\": \"456\", \"amount\": 0}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].field").value("amount"))
+                .andExpect(jsonPath("$[0].message").exists());
     }
 }
