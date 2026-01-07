@@ -6,6 +6,7 @@ import com.smalaca.onlinebank.api.dto.AccountDtos.ValidationError;
 import com.smalaca.onlinebank.application.CustomerService;
 import com.smalaca.onlinebank.application.AccountService;
 import com.smalaca.onlinebank.domain.Customer;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<CustomerResponse> create(@jakarta.validation.Valid @RequestBody CreateCustomerRequest req) {
+    public ResponseEntity<CustomerResponse> create(@Valid @RequestBody CreateCustomerRequest req) {
         Customer saved = customerService.addCustomer(req.name(), req.surname(), req.email(), req.phoneNumber(), req.address());
         CustomerResponse resp = toResponse(saved);
         return ResponseEntity.created(URI.create("/api/customers/" + saved.getCustomerNumber())).body(resp);
@@ -68,6 +69,12 @@ public class CustomerController {
         } else {
             return ResponseEntity.ok(new CustomerDeletionResponse("error", "Customer " + result.customerNumber() + " has accounts and cannot be removed"));
         }
+    }
+
+    @PutMapping("/{customerNumber}")
+    public CustomerResponse update(@PathVariable String customerNumber, @Valid @RequestBody UpdateCustomerRequest req) {
+        Customer updated = customerService.updateCustomer(customerNumber, req.name(), req.surname(), req.email(), req.phoneNumber(), req.address());
+        return toResponse(updated);
     }
 
     @ExceptionHandler(NoSuchElementException.class)

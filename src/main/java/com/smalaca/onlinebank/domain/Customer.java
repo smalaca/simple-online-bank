@@ -49,4 +49,12 @@ public class Customer {
     public String getPhoneNumber() { return phoneNumber; }
     public String getAddress() { return address; }
     public List<Account> getAccounts() { return accounts; }
+
+    public void update(String name, String surname, String email, String phoneNumber, String address) {
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+    }
 }

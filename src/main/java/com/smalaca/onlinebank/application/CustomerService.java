@@ -76,6 +76,12 @@ public class CustomerService {
         return CustomerDeletionResult.success(customerNumber);
     }
 
+    public Customer updateCustomer(String customerNumber, String name, String surname, String email, String phoneNumber, String address) {
+        Customer customer = getByNumber(customerNumber);
+        customer.update(name, surname, email, phoneNumber, address);
+        return customers.save(customer);
+    }
+
     public record CustomerDeletionResult(boolean success, String customerNumber) {
         public static CustomerDeletionResult success(String customerNumber) {
             return new CustomerDeletionResult(true, customerNumber);

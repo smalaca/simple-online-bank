@@ -23,6 +23,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -117,5 +118,42 @@ class CustomerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("error"))
                 .andExpect(jsonPath("$.message").value("Customer CUST-1 has accounts and cannot be removed"));
+    }
+
+    @Test
+    void shouldUpdateCustomer() throws Exception {
+        Customer customer = new Customer("AB-12-1234-1234-1234-1234", "Jane", "Doe", "jane.doe@test.com", "+48987654321", "New Address");
+        given(customerService.updateCustomer(anyString(), any(), any(), any(), any(), any())).willReturn(customer);
+        given(accountService.listCustomerAccounts(anyString())).willReturn(List.of());
+
+        mockMvc.perform(put("/api/customers/AB-12-1234-1234-1234-1234")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"Jane\", \"surname\": \"Doe\", \"email\": \"jane.doe@test.com\", \"phoneNumber\": \"+48987654321\", \"address\": \"New Address\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.customerNumber").value("AB-12-1234-1234-1234-1234"))
+                .andExpect(jsonPath("$.name").value("Jane"))
+                .andExpect(jsonPath("$.surname").value("Doe"))
+                .andExpect(jsonPath("$.email").value("jane.doe@test.com"))
+                .andExpect(jsonPath("$.phoneNumber").value("+48987654321"))
+                .andExpect(jsonPath("$.address").value("New Address"));
+    }
+
+    @Test
+    void shouldReturn404WhenUpdatingNonExistingCustomer() throws Exception {
+        given(customerService.updateCustomer(anyString(), any(), any(), any(), any(), any())).willThrow(new NoSuchElementException("Customer not found"));
+
+        mockMvc.perform(put("/api/customers/NON-EXISTING")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"Jane\", \"surname\": \"Doe\", \"email\": \"jane.doe@test.com\", \"phoneNumber\": \"+48987654321\", \"address\": \"New Address\"}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn200AndValidationErrorsWhenUpdatingWithInvalidData() throws Exception {
+        mockMvc.perform(put("/api/customers/AB-12-1234-1234-1234-1234")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\": \"invalid-email\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].field").value(hasItems("name", "surname", "email")));
     }
 }
