@@ -39,17 +39,17 @@ public class AccountController {
         return new AccountResponse(a.getAccountNumber(), a.getCustomer().getCustomerNumber(), a.getCurrency(), a.getBalance());
     }
 
-    @PostMapping("/{accountNumber}/deposit")
+    @PutMapping("/{accountNumber}/deposit")
     public void deposit(@PathVariable String accountNumber, @RequestBody AmountRequest req) {
         accountService.deposit(accountNumber, req.amount());
     }
 
-    @PostMapping("/{accountNumber}/withdraw")
+    @PutMapping("/{accountNumber}/withdraw")
     public void withdraw(@PathVariable String accountNumber, @RequestBody AmountRequest req) {
         accountService.withdraw(accountNumber, req.amount());
     }
 
-    @PostMapping("/transfer")
+    @PutMapping("/transfer")
     public void transfer(@RequestBody TransferRequest req) {
         accountService.transfer(req.sourceAccount(), req.targetAccount(), req.amount());
     }
