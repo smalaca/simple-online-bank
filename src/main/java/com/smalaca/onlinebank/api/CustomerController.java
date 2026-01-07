@@ -67,9 +67,4 @@ public class CustomerController {
     public ResponseEntity<Void> handleNotFound() {
         return ResponseEntity.notFound().build();
     }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleServiceException(Exception ex) {
-        return ResponseEntity.ok(ex.getMessage());
-    }
 }
