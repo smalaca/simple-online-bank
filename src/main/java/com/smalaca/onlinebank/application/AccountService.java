@@ -88,4 +88,25 @@ public class AccountService {
     private String generateAccountNumber() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
+
+    public AccountDeletionResult deleteAccount(String accountNumber) {
+        Account account = getByAccountNumber(accountNumber);
+
+        if (account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+            return AccountDeletionResult.error(accountNumber, account.getBalance());
+        }
+
+        accounts.delete(account);
+        return AccountDeletionResult.success(accountNumber);
+    }
+
+    public record AccountDeletionResult(boolean success, String accountNumber, BigDecimal balance) {
+        public static AccountDeletionResult success(String accountNumber) {
+            return new AccountDeletionResult(true, accountNumber, BigDecimal.ZERO);
+        }
+
+        public static AccountDeletionResult error(String accountNumber, BigDecimal balance) {
+            return new AccountDeletionResult(false, accountNumber, balance);
+        }
+    }
 }

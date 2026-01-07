@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -51,6 +52,22 @@ public class AccountController {
     @PostMapping("/transfer")
     public void transfer(@RequestBody TransferRequest req) {
         accountService.transfer(req.sourceAccount(), req.targetAccount(), req.amount());
+    }
+
+    @DeleteMapping("/{accountNumber}")
+    public ResponseEntity<AccountDeletionResponse> delete(@PathVariable String accountNumber) {
+        AccountService.AccountDeletionResult result = accountService.deleteAccount(accountNumber);
+
+        if (result.success()) {
+            return ResponseEntity.ok(new AccountDeletionResponse("success", "Account " + result.accountNumber() + " removed successfully"));
+        } else {
+            return ResponseEntity.ok(new AccountDeletionResponse("error", "Account " + result.accountNumber() + " has balance " + result.balance() + " and cannot be removed"));
+        }
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<Void> handleNotFound() {
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(Exception.class)
