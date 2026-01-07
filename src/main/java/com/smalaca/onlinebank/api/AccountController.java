@@ -3,6 +3,7 @@ package com.smalaca.onlinebank.api;
 import com.smalaca.onlinebank.api.dto.AccountDtos.*;
 import com.smalaca.onlinebank.application.AccountService;
 import com.smalaca.onlinebank.domain.Account;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,17 +41,17 @@ public class AccountController {
     }
 
     @PutMapping("/{accountNumber}/deposit")
-    public void deposit(@PathVariable String accountNumber, @RequestBody AmountRequest req) {
+    public void deposit(@PathVariable String accountNumber, @Valid @RequestBody AmountRequest req) {
         accountService.deposit(accountNumber, req.amount());
     }
 
     @PutMapping("/{accountNumber}/withdraw")
-    public void withdraw(@PathVariable String accountNumber, @RequestBody AmountRequest req) {
+    public void withdraw(@PathVariable String accountNumber, @Valid @RequestBody AmountRequest req) {
         accountService.withdraw(accountNumber, req.amount());
     }
 
     @PutMapping("/transfer")
-    public void transfer(@RequestBody TransferRequest req) {
+    public void transfer(@Valid @RequestBody TransferRequest req) {
         accountService.transfer(req.sourceAccount(), req.targetAccount(), req.amount());
     }
 
@@ -72,6 +73,9 @@ public class AccountController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleServiceException(Exception ex) {
+        if (ex instanceof org.springframework.web.bind.MethodArgumentNotValidException) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
         return ResponseEntity.ok(ex.getMessage());
     }
 }

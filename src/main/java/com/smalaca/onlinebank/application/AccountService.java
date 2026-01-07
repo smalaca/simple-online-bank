@@ -54,14 +54,12 @@ public class AccountService {
     }
 
     public void deposit(String accountNumber, BigDecimal amount) {
-        if (amount.signum() <= 0) throw new IllegalArgumentException("Amount must be positive");
         Account acc = getByAccountNumber(accountNumber);
         acc.credit(amount.setScale(4, RoundingMode.HALF_UP));
         transactions.save(new Transaction(acc, null, TransactionType.DEPOSIT, amount));
     }
 
     public void withdraw(String accountNumber, BigDecimal amount) {
-        if (amount.signum() <= 0) throw new IllegalArgumentException("Amount must be positive");
         Account acc = getByAccountNumber(accountNumber);
         if (acc.getBalance().compareTo(amount) < 0) {
             throw new IllegalStateException("Insufficient funds");
@@ -71,7 +69,6 @@ public class AccountService {
     }
 
     public void transfer(String sourceAccount, String targetAccount, BigDecimal amount) {
-        if (amount.signum() <= 0) throw new IllegalArgumentException("Amount must be positive");
         Account src = getByAccountNumber(sourceAccount);
         Account tgt = getByAccountNumber(targetAccount);
         if (src.getBalance().compareTo(amount) < 0) throw new IllegalStateException("Insufficient funds");
