@@ -40,6 +40,16 @@ public class CustomerController {
                 .toList();
     }
 
+    @GetMapping("/search")
+    public List<CustomerResponse> search(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String surname,
+            @RequestParam(required = false) String email) {
+        return customerService.findCustomers(name, surname, email).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     @GetMapping("/{number}")
     public CustomerResponse get(@PathVariable String number) {
         Customer c = customerService.getByNumber(number);

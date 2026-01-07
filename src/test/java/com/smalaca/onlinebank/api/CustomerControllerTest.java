@@ -156,4 +156,21 @@ class CustomerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].field").value("email"));
     }
+
+    @Test
+    void shouldReturnFilteredCustomers() throws Exception {
+        Customer customer = new Customer("AB-12-1234-1234-1234-1234", "John", "Doe", "john.doe@test.com", "+48123456789", "Address");
+        given(customerService.findCustomers("John", "Doe", "john")).willReturn(List.of(customer));
+        given(accountService.listCustomerAccounts(anyString())).willReturn(List.of());
+
+        mockMvc.perform(get("/api/customers/search")
+                        .param("name", "John")
+                        .param("surname", "Doe")
+                        .param("email", "john"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].customerNumber").value("AB-12-1234-1234-1234-1234"))
+                .andExpect(jsonPath("$[0].name").value("John"))
+                .andExpect(jsonPath("$[0].surname").value("Doe"))
+                .andExpect(jsonPath("$[0].email").value("john.doe@test.com"));
+    }
 }

@@ -60,6 +60,14 @@ public class CustomerService {
     }
 
     @Transactional(readOnly = true)
+    public List<Customer> findCustomers(String name, String surname, String email) {
+        return customers.findByNameContainingAndSurnameContainingAndEmailContaining(
+                name == null ? "" : name,
+                surname == null ? "" : surname,
+                email == null ? "" : email);
+    }
+
+    @Transactional(readOnly = true)
     public Customer getByNumber(String number) {
         return customers.findByCustomerNumber(number)
                 .orElseThrow(() -> new NoSuchElementException("Customer not found: " + number));
