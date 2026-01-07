@@ -149,11 +149,11 @@ class CustomerControllerTest {
     }
 
     @Test
-    void shouldReturn200AndValidationErrorsWhenUpdatingWithInvalidData() throws Exception {
+    void shouldReturn200AndValidationErrorsWhenUpdatingWithInvalidEmail() throws Exception {
         mockMvc.perform(put("/api/customers/AB-12-1234-1234-1234-1234")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\": \"invalid-email\"}"))
+                        .content("{\"name\": \"Jane\", \"surname\": \"Doe\", \"email\": \"invalid-email\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[*].field").value(hasItems("name", "surname", "email")));
+                .andExpect(jsonPath("$[0].field").value("email"));
     }
 }

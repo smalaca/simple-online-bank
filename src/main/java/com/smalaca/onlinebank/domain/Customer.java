@@ -51,10 +51,20 @@ public class Customer {
     public List<Account> getAccounts() { return accounts; }
 
     public void update(String name, String surname, String email, String phoneNumber, String address) {
-        this.name = name;
-        this.surname = surname;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.address = address;
+        if (name != null && !name.isBlank()) {
+            this.name = name;
+        }
+        if (surname != null && !surname.isBlank()) {
+            this.surname = surname;
+        }
+        if (email != null && !email.isBlank()) {
+            this.email = email;
+        }
+        if (phoneNumber != null && !phoneNumber.isBlank()) {
+            this.phoneNumber = phoneNumber;
+        }
+        if (address != null && !address.isBlank()) {
+            this.address = address;
+        }
     }
 }
