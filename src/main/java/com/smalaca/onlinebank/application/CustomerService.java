@@ -20,8 +20,38 @@ public class CustomerService {
         this.accounts = accounts;
     }
 
-    public Customer addCustomer(String customerNumber, String name) {
-        return customers.save(new Customer(customerNumber, name));
+    public Customer addCustomer(String name, String surname, String email, String phoneNumber, String address) {
+        String customerNumber = generateCustomerNumber();
+        return customers.save(new Customer(customerNumber, name, surname, email, phoneNumber, address));
+    }
+
+    private String generateCustomerNumber() {
+        java.util.Random random = new java.util.Random();
+        StringBuilder sb = new StringBuilder();
+        
+        // YY (2 letters)
+        for (int i = 0; i < 2; i++) {
+            sb.append((char) ('A' + random.nextInt(26)));
+        }
+        sb.append("-");
+        
+        // XX (2 numbers)
+        for (int i = 0; i < 2; i++) {
+            sb.append(random.nextInt(10));
+        }
+        sb.append("-");
+        
+        // XXXX-XXXX-XXXX-XXXX (4 blocks of 4 numbers)
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                sb.append(random.nextInt(10));
+            }
+            if (i < 3) {
+                sb.append("-");
+            }
+        }
+        
+        return sb.toString();
     }
 
     @Transactional(readOnly = true)

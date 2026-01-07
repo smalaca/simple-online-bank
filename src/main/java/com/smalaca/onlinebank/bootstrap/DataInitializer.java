@@ -4,6 +4,7 @@ import com.smalaca.onlinebank.application.AccountService;
 import com.smalaca.onlinebank.application.CustomerService;
 import com.smalaca.onlinebank.domain.Currency;
 import com.smalaca.onlinebank.domain.Account;
+import com.smalaca.onlinebank.domain.Customer;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
@@ -26,12 +27,11 @@ public class DataInitializer {
 
     @EventListener(ApplicationReadyEvent.class)
     public void initialize() {
-        // Create 10 customers C001..C010
+        // Create 10 customers
         List<String> customers = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
-            String number = "C" + String.format("%03d", i);
-            customerService.addCustomer(number, "Customer " + i);
-            customers.add(number);
+            Customer customer = customerService.addCustomer("Name" + i, "Surname" + i, "customer" + i + "@example.com", "+4812345678" + i, "Address " + i);
+            customers.add(customer.getCustomerNumber());
         }
 
         // 5 customers with 1 account each
@@ -64,10 +64,9 @@ public class DataInitializer {
             idx++;
         }
 
-        // Add 5 customers with NO accounts: C011..C015
+        // Add 5 customers with NO accounts
         for (int i = 11; i <= 15; i++) {
-            String number = "C" + String.format("%03d", i);
-            customerService.addCustomer(number, "Customer " + i);
+            customerService.addCustomer("Name" + i, "Surname" + i, null, null, null);
         }
     }
 

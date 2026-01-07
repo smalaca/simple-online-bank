@@ -24,32 +24,37 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<CustomerResponse> create(@RequestBody CreateCustomerRequest req) {
-        Customer saved = customerService.addCustomer(req.customerNumber(), req.name());
-        CustomerResponse resp = new CustomerResponse(saved.getCustomerNumber(), saved.getName(), List.of());
+    public ResponseEntity<CustomerResponse> create(@jakarta.validation.Valid @RequestBody CreateCustomerRequest req) {
+        Customer saved = customerService.addCustomer(req.name(), req.surname(), req.email(), req.phoneNumber(), req.address());
+        CustomerResponse resp = toResponse(saved);
         return ResponseEntity.created(URI.create("/api/customers/" + saved.getCustomerNumber())).body(resp);
     }
 
     @GetMapping
     public List<CustomerResponse> all() {
         return customerService.findAll().stream()
-                .map(c -> new CustomerResponse(
-                        c.getCustomerNumber(),
-                        c.getName(),
-                        accountService.listCustomerAccounts(c.getCustomerNumber()).stream()
-                                .map(a -> new AccountResponse(a.getAccountNumber(), a.getCustomer().getCustomerNumber(), a.getCurrency(), a.getBalance()))
-                                .toList()
-                ))
+                .map(this::toResponse)
                 .toList();
     }
 
     @GetMapping("/{number}")
     public CustomerResponse get(@PathVariable String number) {
         Customer c = customerService.getByNumber(number);
+        return toResponse(c);
+    }
+
+    private CustomerResponse toResponse(Customer c) {
         List<AccountResponse> accounts = accountService.listCustomerAccounts(c.getCustomerNumber()).stream()
                 .map(a -> new AccountResponse(a.getAccountNumber(), a.getCustomer().getCustomerNumber(), a.getCurrency(), a.getBalance()))
                 .toList();
-        return new CustomerResponse(c.getCustomerNumber(), c.getName(), accounts);
+        return new CustomerResponse(
+                c.getCustomerNumber(),
+                c.getName(),
+                c.getSurname(),
+                c.getEmail(),
+                c.getPhoneNumber(),
+                c.getAddress(),
+                accounts);
     }
 
     @DeleteMapping("/{customerNumber}")
