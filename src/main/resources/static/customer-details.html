@@ -12,6 +12,7 @@
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
         .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 50%; }
+        .error-message { color: red; font-size: 0.8em; margin-left: 10px; display: none; }
     </style>
 </head>
 <body>
@@ -22,18 +23,23 @@
         </div>
         <div class="form-group">
             <label>Name:</label> <input type="text" id="edit-name">
+            <span id="error-name" class="error-message"></span>
         </div>
         <div class="form-group">
             <label>Surname:</label> <input type="text" id="edit-surname">
+            <span id="error-surname" class="error-message"></span>
         </div>
         <div class="form-group">
             <label>Email:</label> <input type="email" id="edit-email">
+            <span id="error-email" class="error-message"></span>
         </div>
         <div class="form-group">
             <label>Phone:</label> <input type="text" id="edit-phoneNumber">
+            <span id="error-phoneNumber" class="error-message"></span>
         </div>
         <div class="form-group">
             <label>Address:</label> <input type="text" id="edit-address">
+            <span id="error-address" class="error-message"></span>
         </div>
         <button onclick="updateCustomer()">Update Customer</button>
     </div>
@@ -120,6 +126,7 @@
         }
 
         async function updateCustomer() {
+            clearErrors();
             const data = {
                 name: document.getElementById('edit-name').value,
                 surname: document.getElementById('edit-surname').value,
@@ -135,14 +142,31 @@
                     body: JSON.stringify(data)
                 });
                 if (response.ok) {
-                    alert('Customer updated successfully');
-                    loadCustomerDetails();
-                } else {
-                    alert('Error updating customer');
+                    const responseBody = await response.json();
+
+                    if (Array.isArray(responseBody)) {
+                        responseBody.forEach(err => {
+                            const errorSpan = document.getElementById(`error-${err.field}`);
+                            if (errorSpan) {
+                                errorSpan.textContent = err.message;
+                                errorSpan.style.display = 'inline';
+                            }
+                        });
+                    } else {
+                        alert('Customer updated successfully');
+                        loadCustomerDetails();
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
             }
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.textContent = '';
+                el.style.display = 'none';
+            });
         }
 
         function openModal(type, accountNumber) {

@@ -11,6 +11,7 @@
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         tr:hover { background-color: #f5f5f5; cursor: pointer; }
         .actions { cursor: default; }
+        .error-message { color: red; font-size: 0.8em; margin-left: 10px; display: none; }
     </style>
 </head>
 <body>
@@ -20,22 +21,27 @@
     <div class="form-group">
         <label for="name">Name:</label>
         <input type="text" id="name">
+        <span id="error-name" class="error-message"></span>
     </div>
     <div class="form-group">
         <label for="surname">Surname:</label>
         <input type="text" id="surname">
+        <span id="error-surname" class="error-message"></span>
     </div>
     <div class="form-group">
         <label for="email">Email:</label>
         <input type="email" id="email">
+        <span id="error-email" class="error-message"></span>
     </div>
     <div class="form-group">
         <label for="phoneNumber">Phone:</label>
         <input type="text" id="phoneNumber">
+        <span id="error-phoneNumber" class="error-message"></span>
     </div>
     <div class="form-group">
         <label for="address">Address:</label>
         <input type="text" id="address">
+        <span id="error-address" class="error-message"></span>
     </div>
     <button onclick="addCustomer()">Add Customer</button>
 
@@ -86,6 +92,7 @@
         }
 
         async function addCustomer() {
+            clearErrors();
             const data = {
                 name: document.getElementById('name').value,
                 surname: document.getElementById('surname').value,
@@ -102,20 +109,36 @@
                 });
 
                 if (response.ok) {
-                    loadCustomers();
-                    // Clear fields
-                    document.getElementById('name').value = '';
-                    document.getElementById('surname').value = '';
-                    document.getElementById('email').value = '';
-                    document.getElementById('phoneNumber').value = '';
-                    document.getElementById('address').value = '';
-                } else {
-                    const errors = await response.json();
-                    alert('Error adding customer: ' + JSON.stringify(errors));
+                    const responseBody = await response.json();
+
+                    if (Array.isArray(responseBody)) {
+                        responseBody.forEach(err => {
+                            const errorSpan = document.getElementById(`error-${err.field}`);
+                            if (errorSpan) {
+                                errorSpan.textContent = err.message;
+                                errorSpan.style.display = 'inline';
+                            }
+                        });
+                    } else {
+                        loadCustomers();
+                        // Clear fields
+                        document.getElementById('name').value = '';
+                        document.getElementById('surname').value = '';
+                        document.getElementById('email').value = '';
+                        document.getElementById('phoneNumber').value = '';
+                        document.getElementById('address').value = '';
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
             }
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.textContent = '';
+                el.style.display = 'none';
+            });
         }
 
         async function deleteCustomer(event, customerNumber) {
