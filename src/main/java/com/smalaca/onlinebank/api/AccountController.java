@@ -92,7 +92,7 @@ public class AccountController {
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<?> handleServiceException(IllegalStateException ex) {
-        return ResponseEntity.ok(ex.getMessage());
+    public ResponseEntity<String> handleServiceException(IllegalStateException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

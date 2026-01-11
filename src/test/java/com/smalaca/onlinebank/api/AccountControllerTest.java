@@ -17,12 +17,13 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AccountController.class)
 @org.springframework.context.annotation.Import(com.smalaca.onlinebank.config.DevSecurityConfig.class)
@@ -122,5 +123,16 @@ class AccountControllerTest {
 
         mockMvc.perform(get("/api/accounts/non-existent/history"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn400WhenWithdrawalFailsDueToInsufficientFunds() throws Exception {
+        willThrow(new IllegalStateException("Insufficient funds")).given(accountService).withdraw(anyString(), any());
+
+        mockMvc.perform(put("/api/accounts/123/withdraw")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"amount\": 100}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Insufficient funds"));
     }
 }
