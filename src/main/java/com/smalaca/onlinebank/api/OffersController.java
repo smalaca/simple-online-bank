@@ -11,14 +11,14 @@ import java.util.List;
 @RequestMapping("/offers/accounts")
 public class OffersController {
 
-    public record AccountOffer(String name, String currency, BigDecimal interestRateAnnual, BigDecimal monthlyFee) {}
+    public record AccountOffer(String id, String name, String currency, BigDecimal interestRateAnnual, BigDecimal monthlyFee) {}
 
     @GetMapping
     public List<AccountOffer> getAccountOffers() {
         return List.of(
-                new AccountOffer("Everyday Account", "USD", new BigDecimal("0.0000"), new BigDecimal("0.00")),
-                new AccountOffer("Savings Account", "USD", new BigDecimal("0.0150"), new BigDecimal("0.00")),
-                new AccountOffer("Premium Account", "USD", new BigDecimal("0.0050"), new BigDecimal("9.99"))
+                new AccountOffer("EVERYDAY", "Everyday Account", "USD", new BigDecimal("0.0000"), new BigDecimal("0.00")),
+                new AccountOffer("SAVINGS", "Savings Account", "USD", new BigDecimal("0.0150"), new BigDecimal("0.00")),
+                new AccountOffer("PREMIUM", "Premium Account", "USD", new BigDecimal("0.0050"), new BigDecimal("9.99"))
         );
     }
 }

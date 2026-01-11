@@ -15,4 +15,6 @@ public class AccountDtos {
     public record AccountDeletionResponse(String status, String message) {}
     public record ValidationError(String field, String message) {}
     public record TransactionResponse(Instant date, String type, BigDecimal amount, String from, String to) {}
+    public record OfferPolicyResponse(String offerId, List<PolicyResponse> policies) {}
+    public record PolicyResponse(String name, String description) {}
 }
