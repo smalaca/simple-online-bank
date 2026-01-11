@@ -158,6 +158,44 @@ class CustomerControllerTest {
     }
 
     @Test
+    void shouldCreateCustomerWithOptionalFieldsMissing() throws Exception {
+        Customer customer = new Customer("AB-12-1234-1234-1234-1234", "John", "Doe", null, null, null);
+        given(customerService.addCustomer("John", "Doe", null, null, null)).willReturn(customer);
+
+        mockMvc.perform(post("/api/customers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"John\", \"surname\": \"Doe\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.customerNumber").value("AB-12-1234-1234-1234-1234"))
+                .andExpect(jsonPath("$.email").isEmpty())
+                .andExpect(jsonPath("$.phoneNumber").isEmpty())
+                .andExpect(jsonPath("$.address").isEmpty());
+    }
+
+    @Test
+    void shouldUpdateCustomerWithSomeFieldsMissing() throws Exception {
+        Customer customer = new Customer("AB-12-1234-1234-1234-1234", "John", "Smith", "john.doe@test.com", "+48123456789", "Address");
+        given(customerService.updateCustomer("AB-12-1234-1234-1234-1234", null, "Smith", null, null, null)).willReturn(customer);
+
+        mockMvc.perform(put("/api/customers/AB-12-1234-1234-1234-1234")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"surname\": \"Smith\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.surname").value("Smith"));
+    }
+
+    @Test
+    void shouldUpdateCustomerWithAllFieldsMissing() throws Exception {
+        Customer customer = new Customer("AB-12-1234-1234-1234-1234", "John", "Doe", "john.doe@test.com", "+48123456789", "Address");
+        given(customerService.updateCustomer("AB-12-1234-1234-1234-1234", null, null, null, null, null)).willReturn(customer);
+
+        mockMvc.perform(put("/api/customers/AB-12-1234-1234-1234-1234")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void shouldReturnFilteredCustomers() throws Exception {
         Customer customer = new Customer("AB-12-1234-1234-1234-1234", "John", "Doe", "john.doe@test.com", "+48123456789", "Address");
         given(customerService.findCustomers("John", "Doe", "john")).willReturn(List.of(customer));

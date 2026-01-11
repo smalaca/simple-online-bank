@@ -11,8 +11,8 @@ public class CustomerDtos {
     public record CreateCustomerRequest(
             @NotBlank String name,
             @NotBlank String surname,
-            @Email String email,
-            @Pattern(regexp = "^\\+?[0-9\\s\\-()]{7,20}$") String phoneNumber,
+            @Email(regexp = ".*@.*|") String email,
+            @Pattern(regexp = "^\\+?[0-9\\s\\-()]{7,20}$|") String phoneNumber,
             String address
     ) {}
 
@@ -31,8 +31,8 @@ public class CustomerDtos {
     public record UpdateCustomerRequest(
             String name,
             String surname,
-            @Email String email,
-            @Pattern(regexp = "^\\+?[0-9\\s\\-()]{7,20}$") String phoneNumber,
+            @Email(regexp = ".*@.*|") String email,
+            @Pattern(regexp = "^\\+?[0-9\\s\\-()]{7,20}$|") String phoneNumber,
             String address
     ) {}
 }
