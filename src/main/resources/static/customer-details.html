@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin-bottom: 10px; }
+        label { display: inline-block; width: 120px; }
+        .section { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 50%; }
+    </style>
+</head>
+<body>
+    <h1>Customer Details</h1>
+    <div id="customer-info">
+        <div class="form-group">
+            <label>Customer No:</label> <span id="display-customerNumber"></span>
+        </div>
+        <div class="form-group">
+            <label>Name:</label> <input type="text" id="edit-name">
+        </div>
+        <div class="form-group">
+            <label>Surname:</label> <input type="text" id="edit-surname">
+        </div>
+        <div class="form-group">
+            <label>Email:</label> <input type="email" id="edit-email">
+        </div>
+        <div class="form-group">
+            <label>Phone:</label> <input type="text" id="edit-phoneNumber">
+        </div>
+        <div class="form-group">
+            <label>Address:</label> <input type="text" id="edit-address">
+        </div>
+        <button onclick="updateCustomer()">Update Customer</button>
+    </div>
+
+    <div class="section">
+        <h2>Accounts</h2>
+        <table id="accounts-table">
+            <thead>
+                <tr>
+                    <th>Account Number</th>
+                    <th>Currency</th>
+                    <th>Balance</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="accounts-list"></tbody>
+        </table>
+    </div>
+
+    <div id="action-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title">Action</h3>
+            <div id="amount-group" class="form-group">
+                <label>Amount:</label>
+                <input type="number" id="action-amount" step="0.01">
+            </div>
+            <div id="transfer-group" class="form-group" style="display:none">
+                <label>Target Account:</label>
+                <select id="target-account-select"></select>
+            </div>
+            <button id="modal-submit">Submit</button>
+            <button onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <p><a href="customers.html">Back to Customers</a></p>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const customerNumber = urlParams.get('customerNumber');
+        let currentAccounts = [];
+        let allOtherAccounts = [];
+
+        async function loadCustomerDetails() {
+            try {
+                const response = await fetch(`/api/customers/${customerNumber}`);
+                if (!response.ok) throw new Error('Customer not found');
+                const customer = await response.json();
+
+                document.getElementById('display-customerNumber').textContent = customer.customerNumber;
+                document.getElementById('edit-name').value = customer.name;
+                document.getElementById('edit-surname').value = customer.surname;
+                document.getElementById('edit-email').value = customer.email;
+                document.getElementById('edit-phoneNumber').value = customer.phoneNumber;
+                document.getElementById('edit-address').value = customer.address;
+
+                currentAccounts = customer.accounts;
+                renderAccounts();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Could not load customer details.');
+            }
+        }
+
+        function renderAccounts() {
+            const list = document.getElementById('accounts-list');
+            list.innerHTML = '';
+            currentAccounts.forEach(acc => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${acc.accountNumber}</td>
+                    <td>${acc.currency}</td>
+                    <td>${acc.balance.toFixed(2)}</td>
+                    <td>
+                        <button onclick="openModal('deposit', '${acc.accountNumber}')">Deposit</button>
+                        <button onclick="openModal('withdraw', '${acc.accountNumber}')">Withdraw</button>
+                        <button onclick="openModal('transfer', '${acc.accountNumber}')">Transfer</button>
+                        <button onclick="viewHistory('${acc.accountNumber}')">History</button>
+                        <button onclick="deleteAccount('${acc.accountNumber}')">Remove</button>
+                    </td>
+                `;
+                list.appendChild(tr);
+            });
+        }
+
+        async function updateCustomer() {
+            const data = {
+                name: document.getElementById('edit-name').value,
+                surname: document.getElementById('edit-surname').value,
+                email: document.getElementById('edit-email').value,
+                phoneNumber: document.getElementById('edit-phoneNumber').value,
+                address: document.getElementById('edit-address').value
+            };
+
+            try {
+                const response = await fetch(`/api/customers/${customerNumber}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    alert('Customer updated successfully');
+                    loadCustomerDetails();
+                } else {
+                    alert('Error updating customer');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function openModal(type, accountNumber) {
+            const modal = document.getElementById('action-modal');
+            const title = document.getElementById('modal-title');
+            const submitBtn = document.getElementById('modal-submit');
+            const transferGroup = document.getElementById('transfer-group');
+
+            modal.style.display = 'block';
+            title.textContent = type.charAt(0).toUpperCase() + type.slice(1) + ' for ' + accountNumber;
+            transferGroup.style.display = type === 'transfer' ? 'block' : 'none';
+
+            if (type === 'transfer') {
+                loadOtherAccounts(accountNumber);
+            }
+
+            submitBtn.onclick = () => handleAction(type, accountNumber);
+        }
+
+        function closeModal() {
+            document.getElementById('action-modal').style.display = 'none';
+        }
+
+        async function loadOtherAccounts(sourceAccountNumber) {
+            try {
+                // To get ALL accounts for dropdown, we need to fetch all customers first
+                const response = await fetch('/api/customers');
+                const customers = await response.json();
+                const select = document.getElementById('target-account-select');
+                select.innerHTML = '';
+
+                customers.forEach(c => {
+                    c.accounts.forEach(acc => {
+                        if (acc.accountNumber !== sourceAccountNumber) {
+                            const opt = document.createElement('option');
+                            opt.value = acc.accountNumber;
+                            opt.textContent = `${c.name} ${c.surname}:${acc.currency}:${acc.accountNumber}`;
+                            select.appendChild(opt);
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading other accounts:', error);
+            }
+        }
+
+        async function handleAction(type, accountNumber) {
+            const amount = parseFloat(document.getElementById('action-amount').value);
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid positive amount');
+                return;
+            }
+
+            let url = `/api/accounts/${accountNumber}/${type}`;
+            let method = 'PUT';
+            let body = JSON.stringify({ amount });
+
+            if (type === 'transfer') {
+                url = '/api/accounts/transfer';
+                const targetAccount = document.getElementById('target-account-select').value;
+                body = JSON.stringify({
+                    sourceAccount: accountNumber,
+                    targetAccount: targetAccount,
+                    amount: amount
+                });
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: body
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    loadCustomerDetails();
+                } else {
+                    const text = await response.text();
+                    alert('Action failed: ' + text);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function deleteAccount(accountNumber) {
+            if (!confirm('Are you sure you want to remove this account?')) return;
+
+            try {
+                const response = await fetch(`/api/accounts/${accountNumber}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    loadCustomerDetails();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function viewHistory(accountNumber) {
+            window.location.href = `transaction-history.html?accountNumber=${accountNumber}`;
+        }
+
+        loadCustomerDetails();
+    </script>
+</body>
+</html>

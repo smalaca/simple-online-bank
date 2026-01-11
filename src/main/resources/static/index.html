@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Bank</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .offer { cursor: pointer; color: blue; text-decoration: underline; margin-bottom: 5px; }
+        #policies { margin-top: 20px; border: 1px solid #ccc; padding: 10px; display: none; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Our Online Bank</h1>
+    <p>We provide secure and easy-to-use banking services for all your needs. From everyday accounts to high-interest savings, we have it all.</p>
+
+    <h2>Account Offers</h2>
+    <div id="offers-list">Loading offers...</div>
+
+    <div id="policies">
+        <h3>Policies for <span id="offer-name"></span></h3>
+        <ul id="policies-list"></ul>
+    </div>
+
+    <hr>
+    <nav>
+        <p><a href="credit-offer.html">Check Credit Offer</a></p>
+        <p><a href="customers.html">Manage Customers</a></p>
+    </nav>
+
+    <script>
+        async function loadOffers() {
+            try {
+                const response = await fetch('/offers/accounts');
+                const offers = await response.json();
+                const list = document.getElementById('offers-list');
+                list.innerHTML = '';
+                offers.forEach(offer => {
+                    const div = document.createElement('div');
+                    div.className = 'offer';
+                    div.textContent = `${offer.name} (${offer.currency}) - Interest: ${offer.interestRateAnnual}, Fee: ${offer.monthlyFee}`;
+                    div.onclick = () => showPolicies(offer.id, offer.name);
+                    list.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Error loading offers:', error);
+                document.getElementById('offers-list').textContent = 'Failed to load offers.';
+            }
+        }
+
+        async function showPolicies(offerId, offerName) {
+            try {
+                const response = await fetch(`/api/offers/${offerId}/policies`);
+                if (!response.ok) throw new Error('Offer not found');
+                const data = await response.json();
+                
+                document.getElementById('offer-name').textContent = offerName;
+                const list = document.getElementById('policies-list');
+                list.innerHTML = '';
+                data.policies.forEach(policy => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${policy.name}</strong>: ${policy.description}`;
+                    list.appendChild(li);
+                });
+                document.getElementById('policies').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading policies:', error);
+                alert('Could not load policies for this offer.');
+            }
+        }
+
+        loadOffers();
+    </script>
+</body>
+</html>

@@ -2,10 +2,7 @@ package com.smalaca.onlinebank.api;
 
 import com.smalaca.onlinebank.api.dto.AccountDtos.CreditOfferRequest;
 import com.smalaca.onlinebank.api.dto.AccountDtos.CreditOfferResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.Random;
@@ -16,7 +13,7 @@ public class CreditOfferController {
     private static final String CONTACT_DETAILS = "Contact us at +1 800 ONLINE BANK or visit any branch.";
     private final Random random = new Random();
 
-    @GetMapping
+    @PostMapping
     public CreditOfferResponse generate(@RequestBody CreditOfferRequest request) {
         int decision = random.nextInt(100);
 

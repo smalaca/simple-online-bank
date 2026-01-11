@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,7 +32,7 @@ class CreditOfferControllerTest {
                 }
                 """;
 
-        mockMvc.perform(get("/api/credit-offers")
+        mockMvc.perform(post("/api/credit-offers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())

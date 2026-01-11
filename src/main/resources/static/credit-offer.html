@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Credit Offer</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin-bottom: 10px; }
+        label { display: inline-block; width: 200px; }
+        #result { margin-top: 20px; border: 1px solid #ccc; padding: 10px; display: none; }
+    </style>
+</head>
+<body>
+    <h1>Check Credit Offer</h1>
+    <div class="form-group">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName">
+    </div>
+    <div class="form-group">
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName">
+    </div>
+    <div class="form-group">
+        <label for="amount">Requested Amount:</label>
+        <input type="number" id="amount">
+    </div>
+    <div class="form-group">
+        <label for="salary">Current Salary:</label>
+        <input type="number" id="salary">
+    </div>
+    <div class="form-group">
+        <label for="currentCreditsAmount">Amount of Current Credits:</label>
+        <input type="number" id="currentCreditsAmount">
+    </div>
+    <button onclick="checkCredit()">Check If Possible</button>
+
+    <div id="result">
+        <h3>Credit Result</h3>
+        <p><strong>Status:</strong> <span id="status"></span></p>
+        <div id="possible-smaller" style="display:none">
+            <p><strong>Proposed Max Amount:</strong> <span id="maxAmount"></span></p>
+        </div>
+        <div id="not-possible" style="display:none">
+            <p><strong>Reason:</strong> <span id="reason"></span></p>
+        </div>
+        <div id="possible" style="display:none">
+            <p><strong>Contact Details:</strong> <span id="contact"></span></p>
+        </div>
+    </div>
+
+    <p><a href="index.html">Back to Home</a></p>
+
+    <script>
+        async function checkCredit() {
+            const data = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                salary: parseFloat(document.getElementById('salary').value),
+                currentCreditsAmount: parseFloat(document.getElementById('currentCreditsAmount').value)
+            };
+
+            try {
+                // Fetch API default GET does not support body, so we need to be careful.
+                // However, most modern browsers support body in GET if specified.
+                // But it's safer to check if the server actually accepts it.
+                const response = await fetch('/api/credit-offers', {
+                    method: 'POST', // The controller says @GetMapping
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error('Failed to get credit offer');
+                const result = await response.json();
+
+                document.getElementById('status').textContent = result.status;
+                document.getElementById('possible-smaller').style.display = result.status === 'possible but smaller' ? 'block' : 'none';
+                document.getElementById('not-possible').style.display = result.status === 'not possible' ? 'block' : 'none';
+                document.getElementById('possible').style.display = result.status === 'possible' ? 'block' : 'none';
+
+                if (result.proposedMaxAmount) document.getElementById('maxAmount').textContent = result.proposedMaxAmount;
+                if (result.reason) document.getElementById('reason').textContent = result.reason;
+                if (result.contactDetails) document.getElementById('contact').textContent = result.contactDetails;
+
+                document.getElementById('result').style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while checking credit offer.');
+            }
+        }
+    </script>
+</body>
+</html>
