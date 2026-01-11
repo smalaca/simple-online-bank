@@ -17,4 +17,7 @@ public class AccountDtos {
     public record TransactionResponse(Instant date, String type, BigDecimal amount, String from, String to) {}
     public record OfferPolicyResponse(String offerId, List<PolicyResponse> policies) {}
     public record PolicyResponse(String name, String description) {}
+
+    public record CreditOfferRequest(String firstName, String lastName, BigDecimal amount, BigDecimal salary, BigDecimal currentCreditsAmount) {}
+    public record CreditOfferResponse(String status, BigDecimal proposedMaxAmount, String reason, String contactDetails) {}
 }
