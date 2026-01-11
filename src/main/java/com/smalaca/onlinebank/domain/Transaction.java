@@ -1,10 +1,13 @@
 package com.smalaca.onlinebank.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
+
+import static org.hibernate.annotations.OnDeleteAction.CASCADE;
 
 @Entity
 @Table(name = "transactions")
@@ -14,9 +17,11 @@ public class Transaction {
     private UUID id;
 
     @ManyToOne(optional = false)
+    @OnDelete(action = CASCADE)
     private Account source;
 
     @ManyToOne
+    @OnDelete(action = CASCADE)
     private Account target;
 
     @Enumerated(EnumType.STRING)
