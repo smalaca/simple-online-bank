@@ -47,6 +47,24 @@
 
     <hr>
 
+    <h2>Search Customers</h2>
+    <div class="form-group">
+        <label for="search-name">Name:</label>
+        <input type="text" id="search-name">
+    </div>
+    <div class="form-group">
+        <label for="search-surname">Surname:</label>
+        <input type="text" id="search-surname">
+    </div>
+    <div class="form-group">
+        <label for="search-email">Email:</label>
+        <input type="text" id="search-email">
+    </div>
+    <button onclick="searchCustomers()">Search</button>
+    <button onclick="loadCustomers()">Clear Search</button>
+
+    <hr>
+
     <h2>Customer List</h2>
     <table id="customer-table">
         <thead>
@@ -68,24 +86,52 @@
     <script>
         async function loadCustomers() {
             try {
+                // Clear search fields when loading all customers
+                document.getElementById('search-name').value = '';
+                document.getElementById('search-surname').value = '';
+                document.getElementById('search-email').value = '';
+
                 const response = await fetch('/api/customers');
                 const customers = await response.json();
-                const list = document.getElementById('customer-list');
-                list.innerHTML = '';
-                customers.forEach(c => {
-                    const tr = document.createElement('tr');
-                    tr.onclick = () => window.location.href = `customer-details.html?customerNumber=${c.customerNumber}`;
-                    tr.innerHTML = `
-                        <td>${c.customerNumber}</td>
-                        <td>${c.name}</td>
-                        <td>${c.surname}</td>
-                        <td>${c.email}</td>
-                        <td class="actions">
-                            <button onclick="deleteCustomer(event, '${c.customerNumber}')">Delete</button>
-                        </td>
-                    `;
-                    list.appendChild(tr);
-                });
+                renderCustomers(customers);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function renderCustomers(customers) {
+            const list = document.getElementById('customer-list');
+            list.innerHTML = '';
+            customers.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.onclick = () => window.location.href = `customer-details.html?customerNumber=${c.customerNumber}`;
+                tr.innerHTML = `
+                    <td>${c.customerNumber}</td>
+                    <td>${c.name}</td>
+                    <td>${c.surname}</td>
+                    <td>${c.email}</td>
+                    <td class="actions">
+                        <button onclick="deleteCustomer(event, '${c.customerNumber}')">Delete</button>
+                    </td>
+                `;
+                list.appendChild(tr);
+            });
+        }
+
+        async function searchCustomers() {
+            const name = document.getElementById('search-name').value;
+            const surname = document.getElementById('search-surname').value;
+            const email = document.getElementById('search-email').value;
+
+            const params = new URLSearchParams();
+            if (name) params.append('name', name);
+            if (surname) params.append('surname', surname);
+            if (email) params.append('email', email);
+
+            try {
+                const response = await fetch(`/api/customers/search?${params.toString()}`);
+                const customers = await response.json();
+                renderCustomers(customers);
             } catch (error) {
                 console.error('Error:', error);
             }
