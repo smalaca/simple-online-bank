@@ -41,6 +41,17 @@ public class AccountController {
         return new AccountResponse(a.getAccountNumber(), a.getCustomer().getCustomerNumber(), a.getCurrency(), a.getBalance());
     }
 
+    @GetMapping("/{accountNumber}/history")
+    public List<TransactionResponse> getHistory(@PathVariable String accountNumber) {
+        return accountService.getHistory(accountNumber).stream()
+                .map(t -> {
+                    String from = t.getSource().getAccountNumber();
+                    String to = t.getTarget() != null ? t.getTarget().getAccountNumber() : null;
+                    return new TransactionResponse(t.getOccurredAt(), t.getType().name(), t.getAmount(), from, to);
+                })
+                .toList();
+    }
+
     @PutMapping("/{accountNumber}/deposit")
     public void deposit(@PathVariable String accountNumber, @Valid @RequestBody AmountRequest req) {
         accountService.deposit(accountNumber, req.amount());

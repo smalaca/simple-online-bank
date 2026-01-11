@@ -4,6 +4,8 @@ import com.smalaca.onlinebank.domain.Currency;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
 
 public class AccountDtos {
     public record CreateAccountRequest(String customerNumber, Currency currency) {}
@@ -12,4 +14,5 @@ public class AccountDtos {
     public record TransferRequest(String sourceAccount, String targetAccount, @Positive BigDecimal amount) {}
     public record AccountDeletionResponse(String status, String message) {}
     public record ValidationError(String field, String message) {}
+    public record TransactionResponse(Instant date, String type, BigDecimal amount, String from, String to) {}
 }

@@ -97,6 +97,12 @@ public class AccountService {
         return AccountDeletionResult.success(accountNumber);
     }
 
+    @Transactional(readOnly = true)
+    public List<Transaction> getHistory(String accountNumber) {
+        Account account = getByAccountNumber(accountNumber);
+        return transactions.findAllBySourceOrTargetOrderByOccurredAtDesc(account, account);
+    }
+
     public record AccountDeletionResult(boolean success, String accountNumber, BigDecimal balance) {
         public static AccountDeletionResult success(String accountNumber) {
             return new AccountDeletionResult(true, accountNumber, BigDecimal.ZERO);
