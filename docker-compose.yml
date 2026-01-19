@@ -6,7 +6,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
     ports:
-      - "8080:8080"
+      - "9180:9180"
 
   # UAT environment - with its own MySQL
   uat-db:
@@ -32,7 +32,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: uat
     ports:
-      - "8081:8081"
+      - "9181:9181"
 
   # PROD environment - with its own MySQL
   prod-db:
@@ -58,4 +58,4 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
     ports:
-      - "8082:8082"
+      - "9182:9182"

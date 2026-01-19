@@ -9,19 +9,19 @@ How to run
 Environments
 - DEV
   - Profile: dev
-  - Port: 8080
+  - Port: 9180
   - DB: H2 in-memory
   - Security: no security at all (all endpoints are open)
   - Data: demo data seeded on startup
 - UAT
   - Profile: uat
-  - Port: 8081
+  - Port: 9181
   - DB: MySQL (docker service uat-db)
   - Security: HTTP Basic with a single user; username uat, password uatpw
   - Data: no demo data
 - PROD
   - Profile: prod
-  - Port: 8082
+  - Port: 9182
   - DB: MySQL (docker service prod-db)
   - Security: HTTP Basic with a single user; username prod, password prodpw
   - Data: no demo data
@@ -32,16 +32,16 @@ Security notes
 
 Run locally (DEV, H2)
 - mvn spring-boot:run -Dspring-boot.run.profiles=dev
-- App: http://localhost:8080
-- H2 Console (optional): http://localhost:8080/h2-console (JDBC URL jdbc:h2:mem:onlinebank)
+- App: http://localhost:9180
+- H2 Console (optional): http://localhost:9180/h2-console (JDBC URL jdbc:h2:mem:onlinebank)
 
 Run all environments with Docker
 - Build jar: mvn -q -DskipTests package
 - Start everything: docker compose up --build
 - Apps:
-  - DEV:  http://localhost:8080
-  - UAT:  http://localhost:8081 (auth: uat/uatpw)
-  - PROD: http://localhost:8082 (auth: prod/prodpw)
+  - DEV:  http://localhost:9180
+  - UAT:  http://localhost:9181 (auth: uat/uatpw)
+  - PROD: http://localhost:9182 (auth: prod/prodpw)
 - Databases:
   - UAT MySQL:  localhost:3307 (user: bank, pw: bankpw)
   - PROD MySQL: localhost:3308 (user: bank, pw: bankpw)
